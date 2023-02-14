@@ -23,7 +23,7 @@ class OutStockResource extends JsonResource
             'stock_id' => $this->stock_id,
             // 'stock_id' => $this->stocks ? $this->stocks->items->id : "null",
             'sender' => $this->sender,
-            'quantity' => $this->quantity,
+            'quantity' => (int)$this->quantity < 0 ? 0 : $this->quantity,
             'created_at' => $this->created_at,
         ];
     }

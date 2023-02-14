@@ -28,8 +28,8 @@ class OutStockController extends Controller
     public function index()
     {
         $user = Auth::user();
-        $out_stocks = $user->outStocks->sortByDesc('created_at');        
-        
+        $out_stocks = $user->outStocks->sortByDesc('created_at');
+
         $data = OutStockResource::collection($out_stocks);
         $perPage = request()->input('limit', 10);
         $currentPage = request()->input('page', 1);
@@ -87,6 +87,7 @@ class OutStockController extends Controller
         $stock_id = trim($request->get(self::STOCK_ID));
         try {
             $stock = OutStock::where('stock_id', '=',  $stock_id)->first();
+
             if ($stock === null) {
                 $stock = new OutStock();
                 $stock->sender = $sender;
@@ -94,34 +95,32 @@ class OutStockController extends Controller
                 $stock->quantity = $quantity;
                 $stock->acceptor = $acceptor;
                 $stock->user_id = $user->id;
-                $stock->save();
-
                 $old_stock = Stock::where('id', '=', $stock_id)->first();
                 if ($old_stock->quantity < $quantity) {
                     return fail("Your Quantity is greater than..!", null);
                 }
                 $old_stock->quantity -= $quantity;
                 $old_stock->save();
+                $stock->save();
 
                 $data = new OutStockResource($stock);
                 DB::commit();
 
                 return success('Successfully Created', $data);
             } else {
+                // return "exitst";
                 $stock->sender = $sender;
                 $stock->stock_id = $stock_id;
                 $stock->quantity += $quantity;
                 $stock->acceptor = $acceptor;
                 $stock->user_id = $user->id;
-                $stock->save();
-
                 $old_stock = Stock::where('id', '=', $stock_id)->first();
                 if ($old_stock->quantity < $quantity) {
                     return fail("Your Quantity is greater than..!", null);
                 }
-
                 $old_stock->quantity -= $quantity;
                 $old_stock->save();
+                $stock->save();
 
                 $data = new OutStockResource($stock);
                 DB::commit();
@@ -176,18 +175,25 @@ class OutStockController extends Controller
             $stock = OutStock::findOrfail($id);
             $stock->sender = $sender;
             $stock->stock_id = $stock_id;
-            $stock->quantity = $quantity;
             $stock->acceptor = $acceptor;
             $stock->user_id = $user->id;
-            $stock->save();
 
             $old_stock = Stock::where('id', '=', $stock_id)->first();
             if ($old_stock->quantity < $quantity) {
                 return fail("Your Quantity is greater than..!", null);
             }
+            if ((int)$quantity > (int)$stock->quantity) {
+                $data = (int)$quantity - (int)$stock->quantity;
+                $stock->quantity = (int)$quantity;
+                $old_stock->quantity -= $data;
+            } else if ((int)$quantity < (int)$stock->quantity) {
+                $data = (int)$stock->quantity - (int)$quantity;
+                $stock->quantity = (int)$quantity;
+                $old_stock->quantity += $data;
+            }
 
-            $old_stock->quantity -= $quantity;
             $old_stock->save();
+            $stock->save();
 
             $data = new OutStockResource($stock);
             return success('Success', $data);
