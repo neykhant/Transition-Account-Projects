@@ -96,6 +96,7 @@ class OutStockController extends Controller
                 $stock->acceptor = $acceptor;
                 $stock->user_id = $user->id;
                 $old_stock = Stock::where('id', '=', $stock_id)->first();
+
                 if ($old_stock->quantity < $quantity) {
                     return fail("Your Quantity is greater than..!", null);
                 }
@@ -182,6 +183,7 @@ class OutStockController extends Controller
             if ($old_stock->quantity < $quantity) {
                 return fail("Your Quantity is greater than..!", null);
             }
+            
             if ((int)$quantity > (int)$stock->quantity) {
                 $data = (int)$quantity - (int)$stock->quantity;
                 $stock->quantity = (int)$quantity;

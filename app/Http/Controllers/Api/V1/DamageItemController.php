@@ -91,15 +91,15 @@ class DamageItemController extends Controller
                 $stock->stock_id = $stock_id;
                 $stock->quantity = $quantity;
                 $stock->user_id = $user->id;
-                $stock->save();
 
                 $old_stock = Stock::where('id', '=', $stock_id)->first();
                 if ($old_stock->quantity < $quantity) {
                     return fail("Your Quantity is greater than In Stock..!", null);
                 }
-
+            
                 $old_stock->quantity -= $quantity;
                 $old_stock->save();
+                $stock->save();
 
                 $data = new DamageItemResource($stock);
                 DB::commit();
@@ -107,9 +107,12 @@ class DamageItemController extends Controller
                 return success('Successfully Created', $data);
             } else {
                 $stock->stock_id = $stock_id;
-                $stock->quantity += $quantity;
                 $stock->user_id = $user->id;
-                $stock->save();
+                if ((int)$quantity > 0) {
+                    $stock->quantity = (int)$stock->quantity + (int)$quantity;
+                } else {
+                    $stock->quantity = (int)$stock->quantity + (int)$quantity;
+                }
 
                 $old_stock = Stock::where('id', '=', $stock_id)->first();
                 if ($old_stock->quantity < $quantity) {
@@ -117,6 +120,7 @@ class DamageItemController extends Controller
                 }
                 $old_stock->quantity -= $quantity;
                 $old_stock->save();
+                $stock->save();
 
                 $data = new DamageItemResource($stock);
                 DB::commit();
@@ -165,30 +169,28 @@ class DamageItemController extends Controller
         $user = Auth::user();
         $quantity = trim($request->get(self::QUANTITY));
         $stock_id = trim($request->get(self::STOCK_ID));
-
         // return $quantity;
-
         try {
             $item_new = DamageItem::findOrFail($id);
-            $item_new->stock_id = $stock_id;
-            // $item_new->quantity =$item_new->quantity + $quantity;
-            if ($quantity > 0) {
-                $item_new->quantity = $item_new->quantity + $quantity;
-            } else {
-                $item_new->quantity = $item_new->quantity + $quantity;
-            }
-            $item_new->user_id = $user->id;
-            $item_new->save();
-
             $old_stock = Stock::where('id', '=', $stock_id)->first();
-            if ($old_stock->quantity < $quantity) {
+            $item_new->stock_id = $stock_id;
+            $item_new->user_id = $user->id;
+
+            if ((int)$old_stock->quantity < (int)$quantity) {
                 return fail("Your Quantity is greater than In Stock..!", null);
             }
-            $old_stock->quantity -= $quantity;
+            if ((int)$quantity > (int)$item_new->quantity ) {
+                $data = (int)$quantity - (int)$item_new->quantity;
+                $item_new->quantity = (int)$quantity;
+                $old_stock->quantity -= $data;
+            } else if ((int)$quantity < (int)$item_new->quantity ) {
+                $data = (int)$item_new->quantity - (int)$quantity;
+                $item_new->quantity = (int)$quantity;
+                $old_stock->quantity += $data;
+            }
+            $item_new->save();
             $old_stock->save();
-
             $data = new DamageItemResource($item_new);
-
             return success('Success Updated', $data);
         } catch (Exception $ex) {
             return fail("Please try again!", null);
