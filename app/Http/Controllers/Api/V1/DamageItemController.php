@@ -33,6 +33,10 @@ class DamageItemController extends Controller
         $currentPage = request()->input('page', 1);
         $total = ceil(count($items) / $perPage);
         $currentPageItems = $data->slice(($currentPage * $perPage) - $perPage, $perPage)->values();
+        //send last index for frontend pagination
+        if ((int)request()->input('page', 1) >= 1) {
+            $lastIndex = ($currentPage - 1) * 10 + 1;
+        }
 
         $keyword = strtolower(request()->input('keyword'));
         if ($keyword) {
@@ -55,8 +59,12 @@ class DamageItemController extends Controller
             ]);
         }
 
-
-        return response()->json(["status" => "success", "data" => $currentPageItems, "total" => count($items), 'current_page' => $currentPage, 'items_per_page' => $perPage, 'total_pages' => $total]);
+        return response()->json([
+            "status" => "success", "data" => $currentPageItems,
+            "lastIndex" => $lastIndex,
+            "total" => count($items), 'current_page' => $currentPage,
+            'items_per_page' => $perPage, 'total_pages' => $total
+        ]);
     }
 
     /**
@@ -96,7 +104,7 @@ class DamageItemController extends Controller
                 if ($old_stock->quantity < $quantity) {
                     return fail("Your Quantity is greater than In Stock..!", null);
                 }
-            
+
                 $old_stock->quantity -= $quantity;
                 $old_stock->save();
                 $stock->save();
@@ -179,11 +187,11 @@ class DamageItemController extends Controller
             if ((int)$old_stock->quantity < (int)$quantity) {
                 return fail("Your Quantity is greater than In Stock..!", null);
             }
-            if ((int)$quantity > (int)$item_new->quantity ) {
+            if ((int)$quantity > (int)$item_new->quantity) {
                 $data = (int)$quantity - (int)$item_new->quantity;
                 $item_new->quantity = (int)$quantity;
                 $old_stock->quantity -= $data;
-            } else if ((int)$quantity < (int)$item_new->quantity ) {
+            } else if ((int)$quantity < (int)$item_new->quantity) {
                 $data = (int)$item_new->quantity - (int)$quantity;
                 $item_new->quantity = (int)$quantity;
                 $old_stock->quantity += $data;

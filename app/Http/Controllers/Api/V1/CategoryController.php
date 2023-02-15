@@ -26,6 +26,10 @@ class CategoryController extends Controller
         $currentPage = request()->input('page', 1);
         $total = ceil(count($categories) / $perPage);
         $currentPageItems = $data->slice(($currentPage * $perPage) - $perPage, $perPage)->values();
+        //send last index for frontend pagination
+        if ((int)request()->input('page', 1) >= 1) {
+            $lastIndex = ($currentPage - 1) * 10 + 1;
+        }
 
         //for keyword
         $keyword = strtolower(request()->input('keyword'));
@@ -47,6 +51,7 @@ class CategoryController extends Controller
 
         return response()->json([
             "status" => "success", "data" => $currentPageItems,
+            "lastIndex" => $lastIndex,
             "total" => count($categories), 'current_page' => $currentPage,
             'items_per_page' => $perPage, 'total_pages' => $total,
             // 'from' => 

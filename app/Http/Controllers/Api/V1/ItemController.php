@@ -32,6 +32,10 @@ class ItemController extends Controller
         $currentPage = request()->input('page', 1);
         $total = ceil(count($items) / $perPage);
         $currentPageItems = $data->slice(($currentPage * $perPage) - $perPage, $perPage)->values();
+        //send last index for frontend pagination
+        if ((int)request()->input('page', 1) >= 1) {
+            $lastIndex = ($currentPage - 1) * 10 + 1;
+        }
 
         //for keyword
         $keyword = strtolower(request()->input('keyword'));
@@ -51,9 +55,12 @@ class ItemController extends Controller
             ]);
         }
 
-        return response()->json(["status" => "success", "data" => $currentPageItems, 
-        "total" => count($items), 'current_page' => $currentPage,
-         'items_per_page' => $perPage, 'total_pages' => $total]);
+        return response()->json([
+            "status" => "success", "data" => $currentPageItems,
+            "lastIndex" => $lastIndex,
+            "total" => count($items), 'current_page' => $currentPage,
+            'items_per_page' => $perPage, 'total_pages' => $total
+        ]);
     }
 
 

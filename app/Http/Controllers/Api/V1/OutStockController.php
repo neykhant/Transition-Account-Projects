@@ -35,7 +35,10 @@ class OutStockController extends Controller
         $currentPage = request()->input('page', 1);
         $total = ceil(count($out_stocks) / $perPage);
         $currentPageItems = $data->slice(($currentPage * $perPage) - $perPage, $perPage)->values();
-
+        //send last index for frontend pagination
+        if ((int)request()->input('page', 1) >= 1) {
+            $lastIndex = ($currentPage - 1) * 10 + 1;
+        }
         //for keyword
         $keyword = strtolower(request()->input('keyword'));
         if ($keyword) {
@@ -57,8 +60,10 @@ class OutStockController extends Controller
             ]);
         }
 
-
-        return response()->json(["status" => "success", "data" => $currentPageItems, "total" => count($out_stocks), 'current_page' => $currentPage, 'items_per_page' => $perPage, 'total_pages' => $total]);
+        return response()->json(["status" => "success", "data" => $currentPageItems,
+        "lastIndex" => $lastIndex,
+         "total" => count($out_stocks), 'current_page' => $currentPage,
+          'items_per_page' => $perPage, 'total_pages' => $total]);
     }
 
     /**
@@ -183,7 +188,7 @@ class OutStockController extends Controller
             if ($old_stock->quantity < $quantity) {
                 return fail("Your Quantity is greater than..!", null);
             }
-            
+
             if ((int)$quantity > (int)$stock->quantity) {
                 $data = (int)$quantity - (int)$stock->quantity;
                 $stock->quantity = (int)$quantity;

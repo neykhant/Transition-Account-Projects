@@ -33,7 +33,9 @@ class StockController extends Controller
         $currentPage = request()->input('page', 1);
         $total = ceil(count($stocks) / $perPage);
         $currentPageItems = $data->slice(($currentPage * $perPage) - $perPage, $perPage)->values();
-
+        if ((int)request()->input('page', 1) >= 1) {
+            $lastIndex = ($currentPage - 1) * 10 + 1;
+        }
         //for keyword
         $keyword = strtolower(request()->input('keyword'));
         if ($keyword) {
@@ -54,7 +56,10 @@ class StockController extends Controller
             ]);
         }
 
-        return response()->json(["status" => "success", "data" => $currentPageItems, "total" => count($stocks), 'current_page' => $currentPage, 'items_per_page' => $perPage, 'total_pages' => $total]);
+        return response()->json(["status" => "success", "data" => $currentPageItems, 
+        "lastIndex" => $lastIndex,
+        "total" => count($stocks), 'current_page' => $currentPage, 
+        'items_per_page' => $perPage, 'total_pages' => $total]);
     }
 
     //get all item not paginate
