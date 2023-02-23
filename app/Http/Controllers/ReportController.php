@@ -48,11 +48,17 @@ class ReportController extends Controller
             $totalStock = InStockReportResource::collection($Stocks);
             $perPage = request()->input('limit', 10);
             $currentPage = request()->input('page', 1);
+            //send last index for frontend pagination
+            if ((int)request()->input('page', 1) >= 1) {
+                $lastIndex = ($currentPage - 1) * 10 + 1;
+            }
+
             $total = ceil(count($totalStock) / $perPage);
             $currentPageItems = $totalStock->slice(($currentPage * $perPage) - $perPage, $perPage)->values();
 
             return response()->json([
                 "status" => "success",
+                "lastIndex" => $lastIndex,
                 "data" => $currentPageItems, "total" => count($totalStock),
                 'current_page' => $currentPage, 'items_per_page' => $perPage,
                 'total_pages' => $total, 'totalInStockQuantity' => $totalStockAll
@@ -68,11 +74,16 @@ class ReportController extends Controller
 
             $perPage = request()->input('limit', 10);
             $currentPage = request()->input('page', 1);
+            //send last index for frontend pagination
+            if ((int)request()->input('page', 1) >= 1) {
+                $lastIndex = ($currentPage - 1) * 10 + 1;
+            }
             $total = ceil(count($totalStock) / $perPage);
             $currentPageItems = $totalStock->slice(($currentPage * $perPage) - $perPage, $perPage)->values();
 
             return response()->json([
                 "status" => "success",
+                "lastIndex" => $lastIndex,
                 "data" => $currentPageItems, "total" => count($totalStock),
                 'current_page' => $currentPage, 'items_per_page' => $perPage,
                 'total_pages' => $total, 'totalInStockQuantity' => $totalStockAll
@@ -110,14 +121,20 @@ class ReportController extends Controller
             $Stocks = OutStock::whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])->orderBy('created_at', 'desc')->get();
             $totalStockAll = $Stocks->sum('quantity');
 
-            $totalStock = OutStockResource::collection($Stocks);            
+            $totalStock = OutStockResource::collection($Stocks);
             $perPage = request()->input('limit', 10);
             $currentPage = request()->input('page', 1);
+            //send last index for frontend pagination
+            if ((int)request()->input('page', 1) >= 1) {
+                $lastIndex = ($currentPage - 1) * 10 + 1;
+            }
             $total = ceil(count($totalStock) / $perPage);
             $currentPageItems = $totalStock->slice(($currentPage * $perPage) - $perPage, $perPage)->values();
 
             return response()->json([
                 "status" => "success",
+                "lastIndex" => $lastIndex,
+
                 "data" => $currentPageItems, "total" => count($totalStock),
                 'current_page' => $currentPage, 'items_per_page' => $perPage,
                 'total_pages' => $total, 'totalInStockQuantity' => $totalStockAll
@@ -133,11 +150,16 @@ class ReportController extends Controller
 
             $perPage = request()->input('limit', 10);
             $currentPage = request()->input('page', 1);
+            //send last index for frontend pagination
+            if ((int)request()->input('page', 1) >= 1) {
+                $lastIndex = ($currentPage - 1) * 10 + 1;
+            }
             $total = ceil(count($totalStock) / $perPage);
             $currentPageItems = $totalStock->slice(($currentPage * $perPage) - $perPage, $perPage)->values();
 
             return response()->json([
                 "status" => "success",
+                "lastIndex" => $lastIndex,
                 "data" => $currentPageItems, "total" => count($totalStock),
                 'current_page' => $currentPage, 'items_per_page' => $perPage,
                 'total_pages' => $total, 'totalInStockQuantity' => $totalStockAll
@@ -211,14 +233,19 @@ class ReportController extends Controller
             $Stocks = DamageItem::whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])->orderBy('created_at', 'desc')->get();
             $totalStockAll = $Stocks->sum('quantity');
 
-            $totalStock = DamageItemResource::collection($Stocks);            
+            $totalStock = DamageItemResource::collection($Stocks);
             $perPage = request()->input('limit', 10);
             $currentPage = request()->input('page', 1);
+            //send last index for frontend pagination
+            if ((int)request()->input('page', 1) >= 1) {
+                $lastIndex = ($currentPage - 1) * 10 + 1;
+            }
             $total = ceil(count($totalStock) / $perPage);
             $currentPageItems = $totalStock->slice(($currentPage * $perPage) - $perPage, $perPage)->values();
 
             return response()->json([
                 "status" => "success",
+                "lastIndex" => $lastIndex,
                 "data" => $currentPageItems, "total" => count($totalStock),
                 'current_page' => $currentPage, 'items_per_page' => $perPage,
                 'total_pages' => $total, 'totalInStockQuantity' => $totalStockAll
@@ -234,11 +261,16 @@ class ReportController extends Controller
 
             $perPage = request()->input('limit', 10);
             $currentPage = request()->input('page', 1);
+            //send last index for frontend pagination
+            if ((int)request()->input('page', 1) >= 1) {
+                $lastIndex = ($currentPage - 1) * 10 + 1;
+            }
             $total = ceil(count($totalStock) / $perPage);
             $currentPageItems = $totalStock->slice(($currentPage * $perPage) - $perPage, $perPage)->values();
 
             return response()->json([
                 "status" => "success",
+                "lastIndex" => $lastIndex,
                 "data" => $currentPageItems, "total" => count($totalStock),
                 'current_page' => $currentPage, 'items_per_page' => $perPage,
                 'total_pages' => $total, 'totalInStockQuantity' => $totalStockAll
